@@ -1,18 +1,17 @@
 import { Pool, PoolConfig } from "pg";
 
 export class DatabaseConnection {
-  private pool: Pool;
+	private pool: Pool;
 
+	constructor(config: PoolConfig) {
+		this.pool = new Pool(config);
+	}
 
-  constructor(config: PoolConfig) {
-    this.pool = new Pool(config);
-  }
+	async close() {
+		await this.pool.end();
+	}
 
-  async close() {
-    await this.pool.end();
-  }
-
-  getPool() {
-    return this.pool;
-  }
+	getPool() {
+		return this.pool;
+	}
 }

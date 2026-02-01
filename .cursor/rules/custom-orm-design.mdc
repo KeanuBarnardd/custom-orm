@@ -1,0 +1,50 @@
+---
+description: Custom ORM design – query builder API, entities, relationships, and patterns to follow
+alwaysApply: true
+---
+
+# Custom ORM Design Context
+
+When building or modifying this custom ORM, follow this API and design.
+
+## Query Builder API
+
+**Filtering**
+- `db.Students.where(Student.age.greaterThan(18)).toArray()`
+- `where(Student.age.lessThan(21))`, `.equals(20)`, `.notEquals(20)`
+- Combine with `orderBy(Student.age.desc())`, `orderBy(Student.name.asc())`
+
+**Create**
+- Option 1: `db.Students.create({ name, age, email, department }).first()`
+- Option 2: `new Student(); student.name = 'Alice';` then persist
+- Option 3: `new Student({ name, age, email, department })`
+- Batch: `db.Students.createMany([...]).toArray()`
+
+**Update / Delete**
+- `db.Students.where(Student.age.lessThan(18)).update({ status, requiresParentalConsent })`
+- `db.Students.where(Student.graduationYear.lessThan(2020)).delete()`
+
+**Relations / Include**
+- `db.Teachers.includeAll([Teacher.students, Teacher.courses, Teacher.office]).where(Teacher.id.equals(1)).first()`
+- Or: `.include(Teacher.students).include(Teacher.courses).include(Teacher.office)`
+
+**Logical combinators**
+- `or([Student.age.lessThan(18), Student.age.greaterThan(65)])`
+- `and([...])`, `not(Student.suspended.equals(true))`
+
+**Pagination**
+- `.take(10).skip(20).toArray()` — take = skip first N, skip = take next N (or match common libs; keep naming consistent with this intent)
+
+## Entity / Model Definition
+
+- **Schema**: Use `createModel({ tableName, schema })` with Zod: `z.object({ id: z.number().int(), name: z.string(), ... })`
+- **Relationships**: `relationships: { department: belongsTo(Department), enrollments: hasMany(Enrollment), courses: belongsToMany(Course) }`
+- **Computed**: `computed: { fullName: (s) => \`${s.firstName} ${s.lastName}\`, isFullTime: (s) => s.enrollmentStatus === 'full-time', ... }`
+- **Methods**: `methods: { addCredits(credits), makePayment(amount), registerForCourse(course), getAcademicStanding() }` — instance methods that can call `this.update(...)` and use `this` fields
+
+## Conventions
+
+- Table access: `db.Students`, `db.Teachers` (plural, PascalCase model name).
+- Where clauses use model field references: `Student.age.greaterThan(18)`, not raw strings.
+- Terminals: `.toArray()` for multiple results, `.first()` for single; `.create(...).first()` for one created row.
+- Keep the API fluent: `where` → `orderBy` → `take`/`skip` → `toArray`/`first`, and `include`/`includeAll` before `where` when loading relations.
