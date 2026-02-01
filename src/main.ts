@@ -15,7 +15,6 @@ async function main() {
 		const result = await db.getPool().query("SELECT 1 as ok");
 		console.log("Connected:", result.rows[0].ok === 1);
 
-		// Generate tables from models (runs CREATE TABLE for each model)
 		const orm = await database({
 			connection: db,
 			models: [Student],

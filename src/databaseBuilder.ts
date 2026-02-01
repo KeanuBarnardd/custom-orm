@@ -13,27 +13,22 @@ export interface DatabaseBuilderOptions<T = unknown> {
 export async function database<T>(options: DatabaseBuilderOptions<T>) {
 	const { connection, models, runMigrations = true } = options;
 
-	// Generate DDL for each model using @datazod/zod-sql.
-	// zod-sql expects ZodObject (z.object({...})); our Model<T>.schema is ZodType<T>.
-	const tableResults = models.map((model) =>
-		createTable(
-			model.tableName,
-			model.schema as Parameters<typeof createTable>[1],
-			{
-				dialect: "postgres",
-				primaryKey: "id",
-			},
-		),
-	);
-
 	if (runMigrations) {
 		const pool = connection.getPool();
-		for (const result of tableResults) {
-			await pool.query(result.table);
-			for (const indexSql of result.indexes) {
-				await pool.query(indexSql);
-			}
-		}
+		const newTables = models.map((model) => {
+			const table = createTable(
+				model.tableName,
+				model.schema as Parameters<typeof createTable>[1],
+				{
+					dialect: "postgres",
+					primaryKey: "id",
+				},
+			);
+
+			return pool.query(table.table);
+		});
+
+		await Promise.all(newTables);
 	}
 
 	return {
