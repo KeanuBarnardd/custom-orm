@@ -5,10 +5,6 @@ export type ModelOptions<T> = {
 	schema: z.ZodType<T>;
 };
 
-export type SafeParseResult<T> =
-	| { success: true; data: T }
-	| { success: false; error: z.ZodError };
-
 export type Model<T> = {
 	tableName: string;
 	schema: z.ZodType<T>;
