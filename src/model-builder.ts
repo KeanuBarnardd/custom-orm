@@ -1,5 +1,5 @@
+import type { ZodType, z } from "zod";
 import type { $ZodTypeInternals } from "zod/v4/core";
-import type { z, ZodType } from "zod";
 
 export type ModelOptions<T> = {
 	tableName: string;

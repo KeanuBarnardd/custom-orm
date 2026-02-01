@@ -2,6 +2,7 @@
 import type { Model } from "./model-builder";
 import { createTable } from "@datazod/zod-sql";
 import type { DatabaseConnection } from "./connection";
+import { initModelQueryBuilder } from "./query-builder";
 
 export interface DatabaseBuilderOptions<T = unknown> {
 	models: Model<T>[];
@@ -25,6 +26,17 @@ export async function database<T>(options: DatabaseBuilderOptions<T>) {
 				},
 			);
 
+			console.log("SCHEMA", table.schema);
+			console.log("TABLE", table.table);
+			console.log("INDEXES", table.indexes);
+			console.log(
+				"STRUCTURE",
+				table.structure.columns.map((c) => c.type),
+			);
+			console.log("SCHEMA JSON", table.schemaJson);
+
+			// Create our query builder for this model
+			const modelQueryBuilder = initModelQueryBuilder(model);
 			return pool.query(table.table);
 		});
 

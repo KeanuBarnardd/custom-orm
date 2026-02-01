@@ -1,9 +1,12 @@
 // This will need to be a function that takes a model and returns the query builder for that model
 
-import { Model } from "./model-builder";
-import { Student } from "./test-models";
+import type { TableStructure } from "@datazod/zod-sql";
+import type { Model } from "./model-builder";
 
-export function initModelQueryBuilder<T>(model: Model<T>) {
+export function initModelQueryBuilder<T>(
+	model: Model<T>,
+	tableStructure: TableStructure,
+) {
 	const conditions: Array<(item: T) => boolean> = [];
 
 	const builder = {
@@ -18,8 +21,3 @@ export function initModelQueryBuilder<T>(model: Model<T>) {
 
 	return builder;
 }
-
-initModelQueryBuilder(Student)
-	.where((s) => s.age < 10)
-	.where((s) => s.age > 18)
-	.toArray();
