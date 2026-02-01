@@ -1,6 +1,6 @@
 import { DatabaseConnection } from "./connection";
-import { database } from "./databaseBuilder";
-import { Student } from "./modelBuilder";
+import { database } from "./database-builder";
+import { Student } from "./test-models";
 
 async function main() {
 	const db = new DatabaseConnection({

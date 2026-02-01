@@ -1,5 +1,5 @@
 /** biome-ignore-all assist/source/organizeImports: <NA> */
-import type { Model } from "./modelBuilder";
+import type { Model } from "./model-builder";
 import { createTable } from "@datazod/zod-sql";
 import type { DatabaseConnection } from "./connection";
 
@@ -21,7 +21,7 @@ export async function database<T>(options: DatabaseBuilderOptions<T>) {
 				model.schema as Parameters<typeof createTable>[1],
 				{
 					dialect: "postgres",
-					primaryKey: "id",
+					primaryKey: "id", // TODO: Make this configurable
 				},
 			);
 
