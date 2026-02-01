@@ -1,7 +1,6 @@
-/** biome-ignore-all assist/source/organizeImports: <NA> */
-import type { Model } from "./model-builder";
 import { createTable } from "@datazod/zod-sql";
 import type { DatabaseConnection } from "./connection";
+import type { Model } from "./model-builder";
 import { initModelQueryBuilder } from "./query-builder";
 
 export interface DatabaseBuilderOptions<T = unknown> {
@@ -26,17 +25,10 @@ export async function database<T>(options: DatabaseBuilderOptions<T>) {
 				},
 			);
 
-			console.log("SCHEMA", table.schema);
-			console.log("TABLE", table.table);
-			console.log("INDEXES", table.indexes);
-			console.log(
-				"STRUCTURE",
-				table.structure.columns.map((c) => c.type),
-			);
-			console.log("SCHEMA JSON", table.schemaJson);
+			console.log("STRUCTURE", table.structure);
 
 			// Create our query builder for this model
-			const modelQueryBuilder = initModelQueryBuilder(model);
+			const modelQueryBuilder = initModelQueryBuilder(model, table.structure);
 			return pool.query(table.table);
 		});
 
