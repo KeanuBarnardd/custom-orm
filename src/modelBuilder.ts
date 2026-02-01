@@ -1,4 +1,5 @@
-import { z } from "zod";
+import { z, type ZodType } from "zod";
+import { $ZodTypeInternals } from "zod/v4/core";
 
 export type ModelOptions<T> = {
 	tableName: string;
@@ -7,7 +8,7 @@ export type ModelOptions<T> = {
 
 export type Model<T> = {
 	tableName: string;
-	schema: z.ZodType<T>;
+	schema: ZodType<T, unknown, $ZodTypeInternals<T, unknown>>;
 };
 
 export function createModel<T>(options: ModelOptions<T>): Model<T> {
@@ -18,7 +19,7 @@ export function createModel<T>(options: ModelOptions<T>): Model<T> {
 	};
 }
 
-const Student = createModel({
+export const Student = createModel({
 	tableName: "students",
 	schema: z.object({
 		id: z.number().int(),
