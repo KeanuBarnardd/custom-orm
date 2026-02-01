@@ -3,15 +3,19 @@ import type { Model } from "./modelBuilder";
 import { createTable } from "@datazod/zod-sql";
 import type { DatabaseConnection } from "./connection";
 
-export interface DatabaseBuilder<T> {
+export interface DatabaseBuilderOptions<T = unknown> {
 	models: Model<T>[];
 	connection: DatabaseConnection;
+	/** If true, run CREATE TABLE (and indexes) against the connection. Default true. */
+	runMigrations?: boolean;
 }
 
-export function database<T>(options: DatabaseBuilder<T>) {
+export async function database<T>(options: DatabaseBuilderOptions<T>) {
+	const { connection, models, runMigrations = true } = options;
+
+	// Generate DDL for each model using @datazod/zod-sql.
 	// zod-sql expects ZodObject (z.object({...})); our Model<T>.schema is ZodType<T>.
-	// We only use object schemas for tables, so this cast is safe at runtime.
-	options.models.map((model) =>
+	const tableResults = models.map((model) =>
 		createTable(
 			model.tableName,
 			model.schema as Parameters<typeof createTable>[1],
@@ -22,8 +26,18 @@ export function database<T>(options: DatabaseBuilder<T>) {
 		),
 	);
 
+	if (runMigrations) {
+		const pool = connection.getPool();
+		for (const result of tableResults) {
+			await pool.query(result.table);
+			for (const indexSql of result.indexes) {
+				await pool.query(indexSql);
+			}
+		}
+	}
+
 	return {
-		models: options.models,
-		connection: options.connection,
+		models,
+		connection,
 	};
 }

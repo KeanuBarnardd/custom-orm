@@ -11,14 +11,18 @@ async function main() {
 		port: 5432,
 	});
 
-	const createDatabase = database({
-		models: [Student],
-		connection: db,
-	});
-
 	try {
 		const result = await db.getPool().query("SELECT 1 as ok");
 		console.log("Connected:", result.rows[0].ok === 1);
+
+		// Generate tables from models (runs CREATE TABLE for each model)
+		const orm = await database({
+			connection: db,
+			models: [Student],
+			runMigrations: true,
+		});
+
+		console.log("Tables created. Models:", orm.models.length);
 	} catch (err) {
 		console.error("Connection failed:", err);
 	} finally {
